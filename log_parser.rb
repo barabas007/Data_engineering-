@@ -20,6 +20,12 @@ user_data = signup_log_lines.map do |line|
   [email, browser]
 end
 
+cross_referenced_data = user_data.map do |line|
+  cross_reference(line) 
+end
+
+cross_referenced_data
+
 #puts user_data
 end  
 
@@ -36,12 +42,41 @@ def extract_email(log_line)
 end
 
 def cross_reference(log_line)
-  users = CSV.open('users.csv') do|csv|
+  users = CSV.open('users.csv') do |csv|
     csv.readlines 
   end
-  p users  
+  users.map! do |line|
+    if line.length == 3
+      if line[0].nil?
+        line[0] = 'Unknown'
+      end
+      if line[1].nil?
+        line[1] = 'Unknown'
+      end
+    else
+      if line[0].match(/[a-zA-Z0-9@.]*/)
+        email = line[0]
+        line[0] = 'Unknown'
+        line.push('Unknown')
+        line.push(email)
+      end
+    end
+    line 
+  end 
+  matching_users = users.select do |line|
+    log_line[0] == line[2]
+
+  end 
+  matching_user = matching_users.first
+
+  { first_name: matching_user[1],
+    last_name: matching_user[0], 
+    email: matching_user[2],
+    browser: log_line[1] 
+  }
+   
 end
 
-cross_reference("")
+#p cross_reference("")
 
-#p parse_log
+ p parse_log 
