@@ -7,4 +7,8 @@ signup_log_lines = access_log_lines.select do |line|
   line.include?('/signup?email=')
 end
 
-puts signup_log_lines
+user_data = signup_log_lines.map do |line|
+  parsed_line = line.split('" "').last
+end
+
+puts user_data 
